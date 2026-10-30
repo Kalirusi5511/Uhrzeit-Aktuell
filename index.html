@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uhrzeit123.de Clone - Windows Settings</title>
+    <style>
+        /* Basic Reset and Body Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Top Navigation Bar */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: #2c3e50;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            background: white;
+            transform: translateY(-4px);
+        }
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 8px;
+            background: #e74c3c;
+            transform: rotate(45deg) translateY(-3px);
+            transform-origin: bottom center;
+        }
+
+        .brand-name {
+            font-weight: 400;
+            color: #d1d1d1;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .menu-icon span {
+            display: block;
+            width: 30px;
+            height: 3px;
+            background-color: #ffffff;
+        }
+
+        /* Ad Placeholder */
+        .ad-banner {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            padding: 10px 0 30px 0;
+            cursor: pointer;
+        }
+
+        /* Main Clock Area */
+        .clock-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-bottom: 15vh;
+            transition: opacity 0.3s ease;
+        }
+
+        .settings-icon {
+            font-size: 1.8rem;
+            color: #888;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .settings-icon:hover {
+            color: #ffffff;
+            transform: rotate(90deg);
+        }
+
+        .current-time-label {
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .time-display {
+            font-size: 8rem;
+            font-weight: 400;
+            line-height: 1;
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+        }
+
+        .seconds {
+            font-size: 4rem;
+            font-weight: 300;
+            margin-left: 10px;
+            color: #e0e0e0;
+        }
+
+        .date-display {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: #b0b0b0;
+            margin-top: 20px;
+        }
+
+        /* =========================================
+           WINDOWS 11 STYLE SETTINGS PANEL
+           ========================================= */
+        .settings-panel {
+            position: absolute;
+            top: 0;
+            right: -400px; /* Hidden by default */
+            width: 380px;
+            height: 100vh;
+            background-color: #202020; /* Windows 11 Dark Theme Color */
+            border-left: 1px solid #333;
+            padding: 25px;
+            transition: right 0.3s ease;
+            z-index: 100;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+        }
+
+        .settings-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .setting-group {
+            margin-bottom: 25px;
+            background-color: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .setting-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-title {
+            font-size: 0.95rem;
+            color: #ffffff;
+        }
+
+        .setting-subtitle {
+            font-size: 0.8rem;
+            color: #aaaaaa;
+            margin-top: 4px;
+        }
+
+        /* Windows 11 Toggle Switch CSS */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #444; /* Off state */
+            transition: .3s;
+            border-radius: 26px;
+            border: 1px solid #777;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #0078d4; /* Windows Blue */
+            border-color: #0078d4;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Manual Inputs */
+        .manual-inputs {
+            display: none; /* Hidden unless manual is ON */
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+        }
+
+        .manual-inputs.active {
+            display: flex;
+        }
+
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-row label {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .input-row input {
+            background-color: #1a1a1a;
+            border: 1px solid #555;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            outline: none;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .input-row input:focus {
+            border-color: #0078d4;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .time-display { font-size: 5rem; }
+            .seconds { font-size: 2.5rem; }
+            .current-time-label { font-size: 1.5rem; }
+            .date-display { font-size: 1.2rem; }
+            .brand-name { font-size: 1rem; }
+            .settings-panel { width: 100%; right: -100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Header -->
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <span class="brand-name">Uhrzeit123.de</span>
+        </div>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Ad Space -->
+    <div class="ad-banner">
+        [ Werbung ausblenden ]
+    </div>
+
+    <!-- Main Clock Display -->
+    <div class="clock-container" id="mainClock">
+        <!-- Clicking this gear opens the Settings Panel -->
+        <div class="settings-icon" id="openSettings">⚙</div>
+        <div class="current-time-label" id="timeLabel">Aktuelle Uhrzeit</div>
+        
+        <div class="time-display">
+            <span id="hours">13</span>:<span id="minutes">05</span>
+            <span class="seconds" id="seconds">44</span>
+        </div>
+        
+        <div class="date-display" id="date">
+            Freitag, 30. Oktober 2026
+        </div>
+    </div>
+
+    <!-- =========================================
+         WINDOWS 11 STYLE SETTINGS PANEL
+         ========================================= -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2>Datum & Uhrzeit</h2>
+            <button class="close-btn" id="closeSettings">&times;</button>
+        </div>
+
+        <!-- Automatic Setting -->
+        <div class="setting-group">
+            <div class="setting-row">
+                <div>
+                    <div class="setting-title">Uhrzeit automatisch festlegen</div>
+                    <div class="setting-subtitle">Zeit wird vom Gerät übernommen (inkl. Umstellung)</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoTimeToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row" style="margin-top: 15px;">
+                <div>
+                    <div class="setting-title">Zeitzone automatisch anpassen</div>
+                    <div class="setting-subtitle">Aktiv für aktuelle Region</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoTimeZoneToggle" checked disabled>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Manual Input Settings (Only visible when Auto is OFF) -->
+        <div class="setting-group manual-inputs" id="manualInputs">
+            <div class="setting-title" style="margin-bottom: 10px; color: #0078d4;">Manuelle Einstellungen</div>
+            
+            <div class="input-row">
+                <label for="manualDate">Datum:</label>
+                <input type="date" id="manualDate">
+            </div>
+            
+            <div class="input-row">
+                <label for="manualTime">Uhrzeit:</label>
+                <input type="time" id="manualTime" step="1">
+            </div>
+            
+            <button id="applyManualBtn" style="background-color: #0078d4; color: white; border: none; padding: 10px; border-radius: 4px; margin-top: 10px; cursor: pointer; font-weight: bold;">
+                Änderungen übernehmen
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript for Live Time, Auto Settings, and Manual Override -->
+    <script>
+        // DOM Elements
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const dateEl = document.getElementById('date');
+        const timeLabel = document.getElementById('timeLabel');
+        
+        const settingsPanel = document.getElementById('settingsPanel');
+        const openSettingsBtn = document.getElementById('openSettings');
+        const closeSettingsBtn = document.getElementById('closeSettings');
+        
+        const autoTimeToggle = document.getElementById('autoTimeToggle');
+        const manualInputs = document.getElementById('manualInputs');
+        const manualDate = document.getElementById('manualDate');
+        const manualTime = document.getElementById('manualTime');
+        const applyManualBtn = document.getElementById('applyManualBtn');
+
+        // State Variables
+        let isAutoMode = true;
+        let manualTargetTime = null; // Holds the manually set timestamp
+        let timeInterval;
+
+        // --- 1. Core Update Function ---
+        function updateClock() {
+            let now;
+
+            if (isAutoMode) {
+                // AUTO MODE: Get exact system time (handles Windows/Mac auto daylight saving)
+                now = new Date();
+            } else {
+                // MANUAL MODE: Use the manually set time and increment it
+                if (manualTargetTime) {
+                    manualTargetTime.setSeconds(manualTargetTime.getSeconds() + 1);
+                    now = new Date(manualTargetTime);
+                } else {
+                    now = new Date(); // Fallback
+                }
+            }
+
+            // Format Time
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            hoursEl.textContent = hours;
+            minutesEl.textContent = minutes;
+            secondsEl.textContent = seconds;
+
+            // Format Date (Auto Language based on Browser)
+            const userLocale = navigator.language || 'de-DE'; 
+            const isGerman = userLocale.startsWith('de');
+            
+            // Update top text based on language
+            timeLabel.textContent = isGerman ? "Aktuelle Uhrzeit" : "Current Time";
+            if(!isAutoMode) timeLabel.textContent = isGerman ? "Manuelle Uhrzeit" : "Manual Time";
+
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateEl.textContent = now.toLocaleDateString(userLocale, dateOptions);
+        }
+
+        // --- 2. Start the Clock ---
+        function startClock() {
+            updateClock(); // Run immediately
+            clearInterval(timeInterval); // Clear any existing interval
+            timeInterval = setInterval(updateClock, 1000); // Run every second
+        }
+
+        // --- 3. Settings Panel Logic ---
+        openSettingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.add('open');
+            
+            // Pre-fill manual inputs with current time when opening
+            const now = new Date();
+            manualDate.value = now.toISOString().split('T')[0];
+            manualTime.value = now.toTimeString().split(' ')[0];
+        });
+
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.remove('open');
+        });
+
+        // --- 4. Windows 11 Toggle Logic ---
+        autoTimeToggle.addEventListener('change', (e) => {
+            isAutoMode = e.target.checked;
+
+            if (isAutoMode) {
+                // Switched to Automatic
+                manualInputs.classList.remove('active');
+                startClock(); // Resume system clock
+            } else {
+                // Switched to Manual
+                manualInputs.classList.add('active');
+                
+                // Pre-fill inputs with the currently displayed time
+                const now = new Date();
+                manualDate.value = now.toISOString().split('T')[0];
+                manualTime.value = now.toTimeString().split(' ')[0];
+                
+                // Pause the clock until they click apply
+                clearInterval(timeInterval); 
+            }
+        });
+
+        // --- 5. Apply Manual Settings ---
+        applyManualBtn.addEventListener('click', () => {
+            const dateVal = manualDate.value;
+            const timeVal = manualTime.value;
+
+            if(dateVal && timeVal) {
+                // Combine Date and Time into a single Date object
+                manualTargetTime = new Date(`${dateVal}T${timeVal}`);
+                
+                // Close panel, start the manual clock
+                settingsPanel.classList.remove('open');
+                startClock(); 
+            } else {
+                alert("Bitte geben Sie ein gültiges Datum und eine Uhrzeit ein.");
+            }
+        });
+
+        // Initialize on page load
+        startClock();
+
+    </script>
+</body>
+</html>
