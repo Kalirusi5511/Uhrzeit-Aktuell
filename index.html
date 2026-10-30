@@ -3,322 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uhrzeit123.de Clone - Windows Settings</title>
+    <title>Secure Clock</title>
     <style>
-        /* Basic Reset and Body Styling */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #000; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
-        body {
-            background-color: #000000;
-            color: #ffffff;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
+        /* Top Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; font-size: 1.2rem; z-index: 10; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 35px; height: 35px; background-color: #2c3e50; border-radius: 50%; display: flex; justify-content: center; align-items: center; position: relative; }
+        .logo-icon::before { content: ''; position: absolute; width: 2px; height: 10px; background: white; transform: translateY(-4px); }
+        .logo-icon::after { content: ''; position: absolute; width: 2px; height: 8px; background: #e74c3c; transform: rotate(45deg) translateY(-3px); transform-origin: bottom center; }
+        .brand-name { font-weight: 400; color: #d1d1d1; }
 
-        /* Top Navigation Bar */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            font-size: 1.2rem;
-            z-index: 10;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            width: 35px;
-            height: 35px;
-            background-color: #2c3e50;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .logo-icon::before {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 10px;
-            background: white;
-            transform: translateY(-4px);
-        }
-        .logo-icon::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 8px;
-            background: #e74c3c;
-            transform: rotate(45deg) translateY(-3px);
-            transform-origin: bottom center;
-        }
-
-        .brand-name {
-            font-weight: 400;
-            color: #d1d1d1;
-        }
-
-        .menu-icon {
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .menu-icon span {
-            display: block;
-            width: 30px;
-            height: 3px;
-            background-color: #ffffff;
-        }
-
-        /* Ad Placeholder */
-        .ad-banner {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #666;
-            padding: 10px 0 30px 0;
-            cursor: pointer;
-        }
+        /* Header Icons */
+        .header-right { display: flex; gap: 15px; align-items: center; }
+        .help-btn { font-size: 1.5rem; color: #ffb900; cursor: pointer; transition: 0.2s; }
+        .help-btn:hover { color: #fff; transform: scale(1.1); }
+        .menu-icon { cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 5px; }
+        .menu-icon span { display: block; width: 30px; height: 3px; background-color: #ffffff; transition: 0.3s; }
+        .menu-icon:hover span { background-color: #0078d4; }
 
         /* Main Clock Area */
-        .clock-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding-bottom: 15vh;
-            transition: opacity 0.3s ease;
-        }
+        .clock-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding-bottom: 15vh; }
+        .settings-icon { font-size: 1.8rem; color: #888; margin-bottom: 15px; cursor: pointer; transition: color 0.2s, transform 0.2s; }
+        .settings-icon:hover { color: #ffffff; transform: rotate(90deg); }
+        .current-time-label { font-size: 2.2rem; font-weight: 300; letter-spacing: 1px; margin-bottom: 10px; }
+        .time-display { font-size: 8rem; font-weight: 400; line-height: 1; display: flex; justify-content: center; align-items: baseline; }
+        .seconds { font-size: 4rem; font-weight: 300; margin-left: 10px; color: #e0e0e0; }
+        .date-display { font-size: 1.8rem; font-weight: 300; color: #b0b0b0; margin-top: 20px; }
 
-        .settings-icon {
-            font-size: 1.8rem;
-            color: #888;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: color 0.2s, transform 0.2s;
-        }
+        /* SETTINGS PANEL */
+        .settings-panel { position: absolute; top: 0; right: -400px; width: 380px; height: 100vh; background-color: #202020; border-left: 1px solid #333; padding: 25px; transition: right 0.3s ease; z-index: 100; box-shadow: -5px 0 15px rgba(0,0,0,0.5); overflow-y: auto; }
+        .settings-panel.open { right: 0; }
+        .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #444; padding-bottom: 15px; }
+        .settings-header h2 { font-size: 1.2rem; font-weight: 600; cursor: pointer; user-select: none; }
+        .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
 
-        .settings-icon:hover {
-            color: #ffffff;
-            transform: rotate(90deg);
-        }
+        .setting-group { margin-bottom: 25px; background-color: #2d2d2d; padding: 15px; border-radius: 8px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .setting-title { font-size: 0.95rem; color: #ffffff; }
+        .setting-subtitle { font-size: 0.8rem; color: #aaaaaa; margin-top: 4px; }
 
-        .current-time-label {
-            font-size: 2.2rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-
-        .time-display {
-            font-size: 8rem;
-            font-weight: 400;
-            line-height: 1;
-            display: flex;
-            justify-content: center;
-            align-items: baseline;
-        }
-
-        .seconds {
-            font-size: 4rem;
-            font-weight: 300;
-            margin-left: 10px;
-            color: #e0e0e0;
-        }
-
-        .date-display {
-            font-size: 1.8rem;
-            font-weight: 300;
-            color: #b0b0b0;
-            margin-top: 20px;
-        }
-
-        /* =========================================
-           WINDOWS 11 STYLE SETTINGS PANEL
-           ========================================= */
-        .settings-panel {
-            position: absolute;
-            top: 0;
-            right: -400px; /* Hidden by default */
-            width: 380px;
-            height: 100vh;
-            background-color: #202020; /* Windows 11 Dark Theme Color */
-            border-left: 1px solid #333;
-            padding: 25px;
-            transition: right 0.3s ease;
-            z-index: 100;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
-            overflow-y: auto;
-        }
-
-        .settings-panel.open {
-            right: 0;
-        }
-
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 15px;
-        }
-
-        .settings-header h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .setting-group {
-            margin-bottom: 25px;
-            background-color: #2d2d2d;
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .setting-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .setting-title {
-            font-size: 0.95rem;
-            color: #ffffff;
-        }
-
-        .setting-subtitle {
-            font-size: 0.8rem;
-            color: #aaaaaa;
-            margin-top: 4px;
-        }
-
-        /* Windows 11 Toggle Switch CSS */
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 26px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #444; /* Off state */
-            transition: .3s;
-            border-radius: 26px;
-            border: 1px solid #777;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #0078d4; /* Windows Blue */
-            border-color: #0078d4;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(24px);
-        }
+        /* Windows 11 Toggle Switch */
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .3s; border-radius: 26px; border: 1px solid #777; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #0078d4; border-color: #0078d4; }
+        input:checked + .slider:before { transform: translateX(24px); }
 
         /* Manual Inputs */
-        .manual-inputs {
-            display: none; /* Hidden unless manual is ON */
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #444;
-        }
+        .manual-inputs { display: none; flex-direction: column; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #444; }
+        .manual-inputs.active { display: flex; }
+        .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .input-row label { font-size: 0.9rem; color: #ccc; }
+        .input-row input { background-color: #1a1a1a; border: 1px solid #555; color: white; padding: 8px; border-radius: 4px; outline: none; font-family: 'Segoe UI', sans-serif; flex: 1; margin-left: 15px; }
+        .input-row input:focus { border-color: #0078d4; }
 
-        .manual-inputs.active {
-            display: flex;
-        }
+        .btn { background-color: #0078d4; color: white; border: none; padding: 10px; border-radius: 4px; margin-top: 10px; cursor: pointer; font-weight: bold; width: 100%; transition: background 0.2s; }
+        .btn:hover { background-color: #106ebe; }
+        .btn-danger { background-color: #d13438; }
+        .btn-danger:hover { background-color: #a4262c; }
+        .btn-discord { background-color: #5865F2; }
+        .btn-discord:hover { background-color: #4752C4; }
 
-        .input-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        /* SECRET SHIELD MENU */
+        .secret-menu { display: none; border: 1px solid #ffb900; background-color: #2b2614; padding: 15px; border-radius: 8px; margin-bottom: 25px; animation: fadeIn 0.4s ease; }
+        .secret-menu.active { display: block; }
+        .shield-icon { font-size: 2rem; text-align: center; margin-bottom: 10px; }
+        .secret-title { color: #ffb900; font-weight: bold; text-align: center; margin-bottom: 15px; font-size: 1rem; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .input-row label {
-            font-size: 0.9rem;
-            color: #ccc;
-        }
+        /* Datumsformat Tabelle & B-Button */
+        .date-format-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .date-format-table th, .date-format-table td { border: 1px solid #444; padding: 6px; text-align: left; }
+        .date-format-table th { background: #2d2d2d; color: #ffb900; font-weight: normal; }
+        .date-format-table td.active { background: #0078d4; color: white; font-weight: bold; }
 
-        .input-row input {
-            background-color: #1a1a1a;
-            border: 1px solid #555;
-            color: white;
-            padding: 8px;
-            border-radius: 4px;
-            outline: none;
-            font-family: 'Segoe UI', sans-serif;
+        .b-button {
+            background: #ffb900; color: #000; font-size: 1.2rem; padding: 5px 10px;
+            border-radius: 50%; width: 40px; height: 40px; display: inline-flex;
+            justify-content: center; align-items: center; cursor: pointer;
+            border: 2px solid #000; box-shadow: 0 0 10px rgba(255,185,0,0.5);
+            margin-left: 10px; vertical-align: middle; transition: 0.2s;
         }
-        
-        .input-row input:focus {
-            border-color: #0078d4;
-        }
+        .b-button:hover { background: #fff; transform: scale(1.1); }
+        .shortcut-hint { font-size: 0.7rem; color: #888; margin-top: 5px; text-align: center; }
 
-        /* Responsive adjustments */
+        /* OVERLAYS (Lock, Recovery, Login, Help) */
+        .overlay { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 999; flex-direction: column; justify-content: center; align-items: center; }
+        .overlay.active { display: flex; }
+        .overlay input { font-size: 1.5rem; text-align: center; width: 250px; padding: 10px; background: #222; border: 2px solid #0078d4; color: white; border-radius: 8px; letter-spacing: 5px; margin-bottom: 15px; }
+        .recovery-box { background: #222; padding: 30px; border-radius: 8px; border: 1px solid #444; text-align: center; width: 350px; max-height: 90vh; overflow-y: auto; }
+        .link-text { color: #0078d4; cursor: pointer; font-size: 0.9rem; margin-top: 15px; display: inline-block; }
+        .link-text:hover { text-decoration: underline; }
+
+        /* Help Overlay Text */
+        .help-content { text-align: left; color: #ccc; font-size: 0.9rem; line-height: 1.6; margin-top: 15px; }
+        .help-content strong { color: #ffb900; }
+
+        /* Login Form (Onboarding) */
+        #loginOverlay { background: #000; z-index: 1000; }
+        .login-title { font-size: 3rem; color: #e67e22; font-family: 'Comic Sans MS', cursive, sans-serif; text-align: center; margin-bottom: 20px; transform: rotate(-5deg); }
+        .login-box { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 2px solid #e67e22; width: 90%; max-width: 400px; box-shadow: 0 0 20px rgba(230,126,34,0.3); }
+        .login-box h2 { text-align: center; margin-bottom: 15px; font-size: 1.5rem; }
+        .login-box p { text-align: center; color: #aaa; margin-bottom: 20px; font-size: 0.9rem; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; font-size: 1rem; text-align: left; letter-spacing: normal; }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .time-display { font-size: 5rem; }
             .seconds { font-size: 2.5rem; }
             .current-time-label { font-size: 1.5rem; }
             .date-display { font-size: 1.2rem; }
-            .brand-name { font-size: 1rem; }
             .settings-panel { width: 100%; right: -100%; }
+            .recovery-box { width: 90%; }
+            .login-title { font-size: 2rem; }
         }
     </style>
 </head>
@@ -328,214 +129,676 @@
     <div class="header">
         <div class="logo-area">
             <div class="logo-icon"></div>
-            <span class="brand-name">Uhrzeit123.de</span>
+            <span class="brand-name">Registry Clock</span>
         </div>
-        <div class="menu-icon">
-            <span></span>
-            <span></span>
-            <span></span>
+        <div class="header-right">
+            <div class="help-btn" id="helpBtn" title="Hilfe & Anleitung">❓</div>
+            <div class="menu-icon" id="menuIconBtn" title="Einstellungen öffnen">
+                <span></span><span></span><span></span>
+            </div>
         </div>
-    </div>
-
-    <!-- Ad Space -->
-    <div class="ad-banner">
-        [ Werbung ausblenden ]
     </div>
 
     <!-- Main Clock Display -->
     <div class="clock-container" id="mainClock">
-        <!-- Clicking this gear opens the Settings Panel -->
         <div class="settings-icon" id="openSettings">⚙</div>
         <div class="current-time-label" id="timeLabel">Aktuelle Uhrzeit</div>
-        
         <div class="time-display">
-            <span id="hours">13</span>:<span id="minutes">05</span>
-            <span class="seconds" id="seconds">44</span>
+            <span id="hours">14</span>:<span id="minutes">26</span>
+            <span class="seconds" id="seconds">01</span>
         </div>
-        
-        <div class="date-display" id="date">
-            Freitag, 30. Oktober 2026
-        </div>
+        <div class="date-display" id="date">Freitag, 30. Oktober 2026</div>
     </div>
 
     <!-- =========================================
-         WINDOWS 11 STYLE SETTINGS PANEL
+         SETTINGS PANEL
          ========================================= -->
     <div class="settings-panel" id="settingsPanel">
         <div class="settings-header">
-            <h2>Datum & Uhrzeit</h2>
+            <h2 id="secretTrigger" title="3x Klicken für Schutzschild">Datum & Uhrzeit</h2>
             <button class="close-btn" id="closeSettings">&times;</button>
         </div>
 
-        <!-- Automatic Setting -->
+        <!-- DATUMSFORMAT TABELLE -->
+        <div class="setting-group">
+            <div class="setting-title" style="color:#ffb900; margin-bottom: 5px;">📅 Datumsformat (Tabelle)</div>
+            <table class="date-format-table">
+                <thead><tr><th>Format</th><th>Beispiel</th></tr></thead>
+                <tbody>
+                    <tr id="fmt-de"><td>TT.MM.JJJJ</td><td>30.10.2026</td></tr>
+                    <tr id="fmt-us"><td>MM/TT/JJJJ</td><td>10/30/2026</td></tr>
+                    <tr id="fmt-iso"><td>JJJJ-MM-TT</td><td>2026-10-30</td></tr>
+                </tbody>
+            </table>
+            <div style="display:flex; align-items:center; justify-content:center; margin-top:10px;">
+                <span style="font-size:0.8rem; color:#ccc;">Format wechseln:</span>
+                <span class="b-button" id="bButton" title="Klicken oder Taste 'B' drücken">B</span>
+            </div>
+            <p class="shortcut-hint">Tipp: Drücke die Taste <strong>B</strong> auf deiner Tastatur</p>
+        </div>
+
+        <!-- SECRET PROTECTION SHIELD (PIN) -->
+        <div class="secret-menu" id="secretMenu">
+            <div class="shield-icon">🛡️</div>
+            <div class="secret-title">Registry Protection Shield</div>
+
+            <div class="setting-row">
+                <div class="setting-title">Schutz aktivieren</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="shieldToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div id="setupFields">
+                <div class="input-row" style="margin-top: 15px;">
+                    <label>PIN (4 Ziffern):</label>
+                    <input type="password" id="setupPinInput" maxlength="4" placeholder="****">
+                </div>
+                <div class="input-row">
+                    <label>Recovery Discord:</label>
+                    <input type="url" id="setupWebhookInput" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+            </div>
+
+            <button class="btn" id="syncBtn" style="margin-top: 20px;">🔄 Mit System Synchronisieren</button>
+            <button class="btn btn-danger" id="createBinBtn">💾 Secret.bin (Registry) Erstellen</button>
+        </div>
+
+        <!-- Automatic Setting (Toggle) -->
         <div class="setting-group">
             <div class="setting-row">
                 <div>
                     <div class="setting-title">Uhrzeit automatisch festlegen</div>
-                    <div class="setting-subtitle">Zeit wird vom Gerät übernommen (inkl. Umstellung)</div>
+                    <div class="setting-subtitle">Zeit wird vom Gerät übernommen</div>
                 </div>
                 <label class="toggle-switch">
                     <input type="checkbox" id="autoTimeToggle" checked>
                     <span class="slider"></span>
                 </label>
             </div>
-            <div class="setting-row" style="margin-top: 15px;">
-                <div>
-                    <div class="setting-title">Zeitzone automatisch anpassen</div>
-                    <div class="setting-subtitle">Aktiv für aktuelle Region</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="autoTimeZoneToggle" checked disabled>
-                    <span class="slider"></span>
-                </label>
-            </div>
         </div>
 
-        <!-- Manual Input Settings (Only visible when Auto is OFF) -->
+        <!-- Manual Input Settings -->
         <div class="setting-group manual-inputs" id="manualInputs">
             <div class="setting-title" style="margin-bottom: 10px; color: #0078d4;">Manuelle Einstellungen</div>
-            
             <div class="input-row">
                 <label for="manualDate">Datum:</label>
                 <input type="date" id="manualDate">
             </div>
-            
             <div class="input-row">
                 <label for="manualTime">Uhrzeit:</label>
                 <input type="time" id="manualTime" step="1">
             </div>
-            
-            <button id="applyManualBtn" style="background-color: #0078d4; color: white; border: none; padding: 10px; border-radius: 4px; margin-top: 10px; cursor: pointer; font-weight: bold;">
-                Änderungen übernehmen
-            </button>
+            <button class="btn" id="applyManualBtn">Änderungen übernehmen</button>
         </div>
     </div>
 
-    <!-- JavaScript for Live Time, Auto Settings, and Manual Override -->
+    <!-- =========================================
+         HELP OVERLAY
+         ========================================= -->
+    <div class="overlay" id="helpOverlay">
+        <div class="recovery-box" style="width: 400px;">
+            <h2 style="color: #ffb900; margin-bottom: 15px;">❓ Hilfe & Anleitung</h2>
+            <div class="help-content">
+                <p><strong>1. Die Uhr:</strong><br>Die Uhr zeigt automatisch die aktuelle Zeit und das Datum deines Geräts an.</p>
+                <p><strong>2. Einstellungen öffnen:</strong><br>Klicke auf das <strong>⚙ (Zahnrad)</strong> oder die <strong>drei Punkte ☰</strong> oben rechts.</p>
+                <p><strong>3. Datumsformat ändern:</strong><br>Im Menü findest du eine Tabelle. Klicke auf den gelben <strong>B-Button</strong> oder drücke die Taste <strong>B</strong> auf deiner Tastatur, um das Format zu wechseln.</p>
+                <p><strong>4. Geheimer PIN-Schutz:</strong><br>Klicke im Menü <strong>3-mal schnell</strong> auf den Titel "Datum & Uhrzeit". Es erscheint ein gelbes Feld, wo du eine PIN und einen Discord-Webhook eingeben kannst.</p>
+                <p><strong>5. PIN vergessen?</strong><br>Wenn du gesperrt bist, klicke auf "PIN vergessen?". Der Code wird an deinen Discord gesendet (falls eingerichtet) oder als Popup angezeigt.</p>
+            </div>
+            <button class="btn" onclick="document.getElementById('helpOverlay').classList.remove('active')" style="margin-top: 20px;">Verstanden</button>
+        </div>
+    </div>
+
+    <!-- =========================================
+         LOGIN / ONBOARDING OVERLAY
+         ========================================= -->
+    <div class="overlay active" id="loginOverlay">
+        <h1 class="login-title">Anmeldungsfunktion</h1>
+        <div class="login-box">
+            <h2>Willkommen!</h2>
+            <p>Bitte geben Sie einen Benutzernamen ein, um die Uhr zu nutzen.</p>
+            <input type="text" id="usernameInput" placeholder="Ihr Name..." maxlength="20">
+            <button class="btn" onclick="loginUser()">Anmelden & Uhr starten</button>
+        </div>
+    </div>
+
+    <!-- LOCK OVERLAY (Enter PIN) -->
+    <div class="overlay" id="lockOverlay">
+        <h2 style="margin-bottom: 20px;">🔒 Registry Locked</h2>
+        <p style="margin-bottom: 15px; color: #aaa;">Bitte PIN eingeben</p>
+        <input type="password" id="loginPinInput" maxlength="4" placeholder="****">
+        <button class="btn" style="width: 250px;" id="unlockBtn">Entsperren</button>
+        <span class="link-text" id="forgotPinBtn">PIN vergessen? (Discord Recovery)</span>
+    </div>
+
+    <!-- RECOVERY OVERLAY (Discord Webhook) -->
+    <div class="overlay" id="recoveryOverlay">
+        <div class="recovery-box">
+            <h2 style="color: #5865F2; margin-bottom: 15px;">📧 Discord Recovery</h2>
+            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;" id="recoveryStatusText">
+                Drücken Sie den Button unten. Ein Code wird an den Discord Webhook gesendet.
+            </p>
+
+            <button class="btn btn-discord" id="sendWebhookBtn" style="margin-bottom: 15px;">📨 Code an Discord Senden</button>
+
+            <input type="text" id="recoveryCodeInput" maxlength="6" placeholder="6-stelliger Code" style="width: 100%; margin-bottom: 15px; display: none;">
+            <button class="btn" id="verifyRecoveryBtn" style="display: none;">Code Überprüfen</button>
+
+            <div id="newPinFields" style="display: none; margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
+                <input type="password" id="newPinInput" maxlength="4" placeholder="Neue PIN (4 Ziffern)" style="width: 100%; margin-bottom: 10px;">
+                <button class="btn" id="saveNewPinBtn">Neue PIN Speichern</button>
+            </div>
+
+            <span class="link-text" id="cancelRecoveryBtn" style="margin-top: 20px;">Abbrechen</span>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
     <script>
-        // DOM Elements
+        // ==========================================
+        // 1. KONFIGURATION
+        // ==========================================
+        const SALT = "ClockApp_Secret_2026_!";
+        const DEVELOPER_WEBHOOK_URL = "";
+
+        const DATE_FORMATS = [
+            { id: 'fmt-de', label: 'TT.MM.JJJJ', options: { day: '2-digit', month: '2-digit', year: 'numeric' }, locale: 'de-DE' },
+            { id: 'fmt-us', label: 'MM/TT/JJJJ', options: { month: '2-digit', day: '2-digit', year: 'numeric' }, locale: 'en-US' },
+            { id: 'fmt-iso', label: 'JJJJ-MM-TT', options: { year: 'numeric', month: '2-digit', day: '2-digit' }, locale: 'sv-SE' }
+        ];
+        let currentDateFormatIndex = 0;
+
+        // --- DOM Elements ---
         const hoursEl = document.getElementById('hours');
         const minutesEl = document.getElementById('minutes');
         const secondsEl = document.getElementById('seconds');
         const dateEl = document.getElementById('date');
         const timeLabel = document.getElementById('timeLabel');
-        
+
         const settingsPanel = document.getElementById('settingsPanel');
         const openSettingsBtn = document.getElementById('openSettings');
         const closeSettingsBtn = document.getElementById('closeSettings');
-        
+        const menuIconBtn = document.getElementById('menuIconBtn');
+        const helpBtn = document.getElementById('helpBtn');
+
         const autoTimeToggle = document.getElementById('autoTimeToggle');
         const manualInputs = document.getElementById('manualInputs');
         const manualDate = document.getElementById('manualDate');
         const manualTime = document.getElementById('manualTime');
         const applyManualBtn = document.getElementById('applyManualBtn');
 
-        // State Variables
+        const secretTrigger = document.getElementById('secretTrigger');
+        const secretMenu = document.getElementById('secretMenu');
+        const shieldToggle = document.getElementById('shieldToggle');
+        const setupPinInput = document.getElementById('setupPinInput');
+        const setupWebhookInput = document.getElementById('setupWebhookInput');
+        const setupFields = document.getElementById('setupFields');
+        const syncBtn = document.getElementById('syncBtn');
+        const createBinBtn = document.getElementById('createBinBtn');
+
+        const lockOverlay = document.getElementById('lockOverlay');
+        const loginPinInput = document.getElementById('loginPinInput');
+        const unlockBtn = document.getElementById('unlockBtn');
+        const forgotPinBtn = document.getElementById('forgotPinBtn');
+
+        const recoveryOverlay = document.getElementById('recoveryOverlay');
+        const sendWebhookBtn = document.getElementById('sendWebhookBtn');
+        const recoveryStatusText = document.getElementById('recoveryStatusText');
+        const recoveryCodeInput = document.getElementById('recoveryCodeInput');
+        const verifyRecoveryBtn = document.getElementById('verifyRecoveryBtn');
+        const newPinFields = document.getElementById('newPinFields');
+        const newPinInput = document.getElementById('newPinInput');
+        const saveNewPinBtn = document.getElementById('saveNewPinBtn');
+        const cancelRecoveryBtn = document.getElementById('cancelRecoveryBtn');
+
+        // --- State Variables ---
         let isAutoMode = true;
-        let manualTargetTime = null; // Holds the manually set timestamp
+        let manualTargetTime = null;
         let timeInterval;
 
-        // --- 1. Core Update Function ---
+        let clickCount = 0;
+        let clickTimeout;
+        let currentWebhookURL = DEVELOPER_WEBHOOK_URL;
+        let pendingRecoveryCode = null;
+        let recoveryVerified = false;
+
+        let registryConfig = { isActive: false, pin: "", recoveryCode: "" };
+
+        // ==========================================
+        // 2. NEUE BENUTZER-ANMELDUNG (Onboarding)
+        // ==========================================
+        function loginUser() {
+            const username = document.getElementById('usernameInput').value.trim();
+            if (username === "") {
+                alert("Bitte geben Sie einen Namen ein.");
+                return;
+            }
+            localStorage.setItem('clockUsername', username);
+            document.getElementById('loginOverlay').classList.remove('active');
+            document.getElementById('timeLabel').textContent = "Hallo, " + username + "! Aktuelle Uhrzeit:";
+            startClock();
+        }
+
+        window.addEventListener('load', () => {
+            const savedUser = localStorage.getItem('clockUsername');
+            if (savedUser) {
+                document.getElementById('loginOverlay').classList.remove('active');
+                document.getElementById('timeLabel').textContent = "Hallo, " + savedUser + "! Aktuelle Uhrzeit:";
+            }
+            startClock();
+        });
+
+        // ==========================================
+        // 3. HILFE-BUTTON
+        // ==========================================
+        helpBtn.addEventListener('click', () => {
+            document.getElementById('helpOverlay').classList.add('active');
+        });
+
+        // ==========================================
+        // 4. HASH-FUNKTION (SHA-256 + Salt)
+        // ==========================================
+        async function hashPin(pin) {
+            const data = new TextEncoder().encode(SALT + pin);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ==========================================
+        // 5. UHR & DATUM
+        // ==========================================
         function updateClock() {
             let now;
-
             if (isAutoMode) {
-                // AUTO MODE: Get exact system time (handles Windows/Mac auto daylight saving)
                 now = new Date();
             } else {
-                // MANUAL MODE: Use the manually set time and increment it
                 if (manualTargetTime) {
                     manualTargetTime.setSeconds(manualTargetTime.getSeconds() + 1);
                     now = new Date(manualTargetTime);
                 } else {
-                    now = new Date(); // Fallback
+                    now = new Date();
                 }
             }
 
-            // Format Time
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
+            hoursEl.textContent = String(now.getHours()).padStart(2, '0');
+            minutesEl.textContent = String(now.getMinutes()).padStart(2, '0');
+            secondsEl.textContent = String(now.getSeconds()).padStart(2, '0');
 
-            hoursEl.textContent = hours;
-            minutesEl.textContent = minutes;
-            secondsEl.textContent = seconds;
-
-            // Format Date (Auto Language based on Browser)
-            const userLocale = navigator.language || 'de-DE'; 
-            const isGerman = userLocale.startsWith('de');
-            
-            // Update top text based on language
-            timeLabel.textContent = isGerman ? "Aktuelle Uhrzeit" : "Current Time";
-            if(!isAutoMode) timeLabel.textContent = isGerman ? "Manuelle Uhrzeit" : "Manual Time";
-
-            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            dateEl.textContent = now.toLocaleDateString(userLocale, dateOptions);
-        }
-
-        // --- 2. Start the Clock ---
-        function startClock() {
-            updateClock(); // Run immediately
-            clearInterval(timeInterval); // Clear any existing interval
-            timeInterval = setInterval(updateClock, 1000); // Run every second
-        }
-
-        // --- 3. Settings Panel Logic ---
-        openSettingsBtn.addEventListener('click', () => {
-            settingsPanel.classList.add('open');
-            
-            // Pre-fill manual inputs with current time when opening
-            const now = new Date();
-            manualDate.value = now.toISOString().split('T')[0];
-            manualTime.value = now.toTimeString().split(' ')[0];
-        });
-
-        closeSettingsBtn.addEventListener('click', () => {
-            settingsPanel.classList.remove('open');
-        });
-
-        // --- 4. Windows 11 Toggle Logic ---
-        autoTimeToggle.addEventListener('change', (e) => {
-            isAutoMode = e.target.checked;
-
+            const savedUser = localStorage.getItem('clockUsername');
             if (isAutoMode) {
-                // Switched to Automatic
-                manualInputs.classList.remove('active');
-                startClock(); // Resume system clock
+                timeLabel.textContent = savedUser ? "Hallo, " + savedUser + "!" : "Aktuelle Uhrzeit";
             } else {
-                // Switched to Manual
-                manualInputs.classList.add('active');
-                
-                // Pre-fill inputs with the currently displayed time
-                const now = new Date();
-                manualDate.value = now.toISOString().split('T')[0];
-                manualTime.value = now.toTimeString().split(' ')[0];
-                
-                // Pause the clock until they click apply
-                clearInterval(timeInterval); 
+                timeLabel.textContent = "Manuelle Uhrzeit";
+            }
+
+            const format = DATE_FORMATS[currentDateFormatIndex];
+            const dateString = now.toLocaleDateString(format.locale, format.options);
+            const weekday = now.toLocaleDateString('de-DE', { weekday: 'long' });
+            dateEl.textContent = weekday + ', ' + dateString;
+        }
+
+        function startClock() {
+            updateClock();
+            clearInterval(timeInterval);
+            timeInterval = setInterval(updateClock, 1000);
+        }
+
+        // ==========================================
+        // 6. DATUMSFORMAT WECHSELN
+        // ==========================================
+        function updateDateFormatUI() {
+            DATE_FORMATS.forEach(f => document.getElementById(f.id).classList.remove('active'));
+            document.getElementById(DATE_FORMATS[currentDateFormatIndex].id).classList.add('active');
+            updateClock();
+            localStorage.setItem('dateFormatIndex', currentDateFormatIndex);
+        }
+
+        function cycleDateFormat() {
+            currentDateFormatIndex = (currentDateFormatIndex + 1) % DATE_FORMATS.length;
+            updateDateFormatUI();
+        }
+
+        document.getElementById('bButton').addEventListener('click', cycleDateFormat);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                if (e.key === 'b' || e.key === 'B') {
+                    cycleDateFormat();
+                }
             }
         });
 
-        // --- 5. Apply Manual Settings ---
+        const savedFormat = localStorage.getItem('dateFormatIndex');
+        if (savedFormat !== null) currentDateFormatIndex = parseInt(savedFormat);
+        updateDateFormatUI();
+
+        // ==========================================
+        // 7. PANEL OPEN/CLOSE & LOCK CHECK
+        // ==========================================
+        function openSettingsPanel() {
+            if (registryConfig.isActive) {
+                lockOverlay.classList.add('active');
+                loginPinInput.value = "";
+                loginPinInput.focus();
+            } else {
+                settingsPanel.classList.add('open');
+                prefillManualInputs();
+            }
+        }
+
+        openSettingsBtn.addEventListener('click', openSettingsPanel);
+        menuIconBtn.addEventListener('click', openSettingsPanel);
+        closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.remove('open'));
+
+        unlockBtn.addEventListener('click', async () => {
+            const inputPin = loginPinInput.value;
+            const inputHash = await hashPin(inputPin);
+            if (inputHash === registryConfig.pin) {
+                lockOverlay.classList.remove('active');
+                settingsPanel.classList.add('open');
+                prefillManualInputs();
+            } else {
+                alert("❌ Falsche PIN! Zugriff verweigert.");
+                loginPinInput.value = "";
+            }
+        });
+
+        // ==========================================
+        // 8. SECRET MENU & REGISTRY PIN SETUP
+        // ==========================================
+        secretTrigger.addEventListener('click', () => {
+            clickCount++;
+            clearTimeout(clickTimeout);
+            clickTimeout = setTimeout(() => { clickCount = 0; }, 1000);
+            if (clickCount === 3) {
+                secretMenu.classList.add('active');
+                clickCount = 0;
+            }
+        });
+
+        shieldToggle.addEventListener('change', async (e) => {
+            if (e.target.checked) {
+                const pin = setupPinInput.value;
+                let webhook = setupWebhookInput.value;
+
+                if (pin.length !== 4 || !/^\d+$/.test(pin)) {
+                    alert("Bitte geben Sie eine gültige 4-stellige PIN ein.");
+                    e.target.checked = false;
+                    return;
+                }
+
+                if (webhook && webhook.includes("discord.com")) {
+                    currentWebhookURL = webhook;
+                }
+
+                registryConfig.pin = await hashPin(pin);
+                registryConfig.isActive = true;
+
+                // Persistieren
+                localStorage.setItem('registryConfig', JSON.stringify({
+                    isActive: true,
+                    pin: registryConfig.pin,
+                    webhook: currentWebhookURL
+                }));
+
+                setupFields.style.display = 'none';
+                alert(`🛡️ Registry Schutz aktiviert!\nPIN sicher gehasht und gespeichert.`);
+            } else {
+                registryConfig.isActive = false;
+                registryConfig.pin = "";
+                setupFields.style.display = 'block';
+                setupPinInput.value = "";
+                localStorage.removeItem('registryConfig');
+            }
+        });
+
+        // --- SYNC BUTTON (simuliert) ---
+        syncBtn.addEventListener('click', () => {
+            recoveryStatusText.textContent = "System-Synchronisation läuft...";
+            // Simulierte kurze Verzögerung
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    alert("🔄 Mit System synchronisiert!\nWebhook: " + (currentWebhookURL.substring(0, 40) + "..."));
+                } else {
+                    alert("⚠️ Keine Internetverbindung. Synchronisation fehlgeschlagen.");
+                }
+            }, 600);
+        });
+
+        // --- SECRET.BIN ERSTELLEN ---
+        createBinBtn.addEventListener('click', () => {
+            if (!registryConfig.isActive) {
+                alert("Bitte zuerst den Schutz aktivieren und eine PIN setzen.");
+                return;
+            }
+            const bin = JSON.stringify({
+                version: "1.0",
+                created: new Date().toISOString(),
+                pinHash: registryConfig.pin,
+                recovery: currentWebhookURL !== DEVELOPER_WEBHOOK_URL ? currentWebhookURL : "(default developer webhook)"
+            }, null, 2);
+
+            const blob = new Blob([bin], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'secret.bin';
+            a.click();
+            URL.revokeObjectURL(url);
+            alert("💾 Secret.bin wurde erstellt und heruntergeladen.");
+        });
+
+        // ==========================================
+        // 9. RECOVERY SYSTEM (DISCORD WEBHOOK)
+        // ==========================================
+        forgotPinBtn.addEventListener('click', () => {
+            lockOverlay.classList.remove('active');
+            recoveryOverlay.classList.add('active');
+
+            sendWebhookBtn.style.display = 'block';
+            recoveryCodeInput.style.display = 'none';
+            verifyRecoveryBtn.style.display = 'none';
+            newPinFields.style.display = 'none';
+            recoveryCodeInput.value = "";
+            recoveryStatusText.textContent = "Drücken Sie den Button unten. Ein Code wird an den Discord Webhook gesendet.";
+        });
+
+        // ==========================================
+        // 10. RECOVERY: CODE SENDEN / PRÜFEN / PIN ÄNDERN
+        // ==========================================
+        sendWebhookBtn.addEventListener('click', async () => {
+            if (!registryConfig.isActive || !registryConfig.pin) {
+                alert('Es ist kein PIN-Schutz eingerichtet.');
+                return;
+            }
+
+            pendingRecoveryCode = String(Math.floor(100000 + Math.random() * 900000));
+            recoveryVerified = false;
+
+            // A webhook URL in a static website is visible to anyone who can inspect
+            // the page or browser storage. Use this only for a private local demo.
+            if (currentWebhookURL && /^https:\/\/discord\.com\/api\/webhooks\//.test(currentWebhookURL)) {
+                try {
+                    const response = await fetch(currentWebhookURL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            content: 'Secure Clock – Recovery-Code: **' + pendingRecoveryCode + '**. Falls du diesen Code nicht angefordert hast, ignoriere diese Nachricht.'
+                        })
+                    });
+                    if (!response.ok) throw new Error('Webhook antwortete mit HTTP ' + response.status);
+                    recoveryStatusText.textContent = 'Der Recovery-Code wurde an den konfigurierten Discord-Webhook gesendet. Bitte gib ihn unten ein.';
+                } catch (error) {
+                    console.error('Webhook-Recovery fehlgeschlagen:', error);
+                    recoveryStatusText.textContent = 'Discord konnte nicht erreicht werden. Für diese lokale Demo lautet dein Recovery-Code: ' + pendingRecoveryCode;
+                }
+            } else {
+                recoveryStatusText.textContent = 'Lokale Demo-Recovery: Dein Recovery-Code lautet ' + pendingRecoveryCode + '. Bewahre ihn sicher auf.';
+            }
+
+            recoveryCodeInput.value = '';
+            recoveryCodeInput.style.display = 'block';
+            verifyRecoveryBtn.style.display = 'block';
+            sendWebhookBtn.style.display = 'none';
+            recoveryCodeInput.focus();
+        });
+
+        verifyRecoveryBtn.addEventListener('click', () => {
+            const entered = recoveryCodeInput.value.trim();
+            if (!pendingRecoveryCode || entered !== pendingRecoveryCode) {
+                alert('❌ Der Recovery-Code ist falsch.');
+                return;
+            }
+            recoveryVerified = true;
+            recoveryStatusText.textContent = '✅ Code bestätigt. Du kannst jetzt eine neue PIN festlegen.';
+            recoveryCodeInput.style.display = 'none';
+            verifyRecoveryBtn.style.display = 'none';
+            newPinFields.style.display = 'block';
+            newPinInput.focus();
+        });
+
+        saveNewPinBtn.addEventListener('click', async () => {
+            if (!recoveryVerified) {
+                alert('Bitte bestätige zuerst den Recovery-Code.');
+                return;
+            }
+            const newPin = newPinInput.value.trim();
+            if (!/^\d{4}$/.test(newPin)) {
+                alert('Die neue PIN muss genau vier Ziffern enthalten.');
+                return;
+            }
+
+            registryConfig.pin = await hashPin(newPin);
+            registryConfig.isActive = true;
+            persistRegistryConfig();
+            shieldToggle.checked = true;
+            setupFields.style.display = 'none';
+            pendingRecoveryCode = null;
+            recoveryVerified = false;
+            newPinInput.value = '';
+            recoveryOverlay.classList.remove('active');
+            lockOverlay.classList.remove('active');
+            alert('✅ Deine neue PIN wurde gespeichert.');
+        });
+
+        cancelRecoveryBtn.addEventListener('click', () => {
+            pendingRecoveryCode = null;
+            recoveryVerified = false;
+            recoveryOverlay.classList.remove('active');
+            if (registryConfig.isActive) lockOverlay.classList.add('active');
+        });
+
+        // ==========================================
+        // 11. REGISTRY-KONFIGURATION LADEN / SPEICHERN
+        // ==========================================
+        function persistRegistryConfig() {
+            localStorage.setItem('registryConfig', JSON.stringify({
+                isActive: Boolean(registryConfig.isActive),
+                pin: registryConfig.pin,
+                webhook: currentWebhookURL
+            }));
+        }
+
+        function loadRegistryConfig() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('registryConfig') || 'null');
+                if (!saved || typeof saved !== 'object') return;
+                registryConfig.isActive = saved.isActive === true;
+                registryConfig.pin = typeof saved.pin === 'string' ? saved.pin : '';
+                currentWebhookURL = typeof saved.webhook === 'string' ? saved.webhook : '';
+                shieldToggle.checked = registryConfig.isActive;
+                setupFields.style.display = registryConfig.isActive ? 'none' : 'block';
+                if (currentWebhookURL) setupWebhookInput.value = currentWebhookURL;
+            } catch (error) {
+                console.error('Gespeicherte Konfiguration konnte nicht geladen werden:', error);
+                registryConfig = { isActive: false, pin: '', recoveryCode: '' };
+            }
+        }
+
+        // Save webhook text when the user configures the shield. It is not a secret
+        // in a browser-only app; do not use a valuable/private webhook here.
+        setupWebhookInput.addEventListener('change', () => {
+            const value = setupWebhookInput.value.trim();
+            if (value && !/^https:\/\/discord\.com\/api\/webhooks\//.test(value)) {
+                alert('Bitte verwende eine gültige Discord-Webhook-URL.');
+                setupWebhookInput.value = '';
+                return;
+            }
+            currentWebhookURL = value;
+            if (registryConfig.isActive) persistRegistryConfig();
+        });
+
+        // Replace the earlier inline persistence with the shared helper.
+        const savedRegistryRaw = localStorage.getItem('registryConfig');
+        if (savedRegistryRaw) loadRegistryConfig();
+
+        // ==========================================
+        // 12. MANUELLE UHRZEIT
+        // ==========================================
+        function prefillManualInputs() {
+            const value = isAutoMode || !manualTargetTime ? new Date() : manualTargetTime;
+            const pad = n => String(n).padStart(2, '0');
+            manualDate.value = value.getFullYear() + '-' + pad(value.getMonth() + 1) + '-' + pad(value.getDate());
+            manualTime.value = pad(value.getHours()) + ':' + pad(value.getMinutes()) + ':' + pad(value.getSeconds());
+        }
+
+        autoTimeToggle.addEventListener('change', () => {
+            isAutoMode = autoTimeToggle.checked;
+            manualInputs.classList.toggle('active', !isAutoMode);
+            if (!isAutoMode) prefillManualInputs();
+            updateClock();
+        });
+
         applyManualBtn.addEventListener('click', () => {
-            const dateVal = manualDate.value;
-            const timeVal = manualTime.value;
-
-            if(dateVal && timeVal) {
-                // Combine Date and Time into a single Date object
-                manualTargetTime = new Date(`${dateVal}T${timeVal}`);
-                
-                // Close panel, start the manual clock
-                settingsPanel.classList.remove('open');
-                startClock(); 
-            } else {
-                alert("Bitte geben Sie ein gültiges Datum und eine Uhrzeit ein.");
+            if (!manualDate.value || !manualTime.value) {
+                alert('Bitte Datum und Uhrzeit auswählen.');
+                return;
             }
+            const next = new Date(manualDate.value + 'T' + manualTime.value);
+            if (Number.isNaN(next.getTime())) {
+                alert('Datum oder Uhrzeit ist ungültig.');
+                return;
+            }
+            manualTargetTime = next;
+            isAutoMode = false;
+            autoTimeToggle.checked = false;
+            manualInputs.classList.add('active');
+            updateClock();
+            alert('Manuelle Uhrzeit übernommen.');
         });
 
-        // Initialize on page load
-        startClock();
+        // Keep manual time moving forward once per second.
+        // (updateClock increments manualTargetTime by one second.)
 
+        // ==========================================
+        // 13. TASTATUR / INITIALISIERUNG
+        // ==========================================
+        loginPinInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') unlockBtn.click();
+        });
+        recoveryCodeInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') verifyRecoveryBtn.click();
+        });
+        newPinInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') saveNewPinBtn.click();
+        });
+        document.getElementById('usernameInput').addEventListener('keydown', event => {
+            if (event.key === 'Enter') loginUser();
+        });
+
+        // Restore the saved date format and user label, then start the clock.
+        if (savedFormat !== null) {
+            const parsedFormat = Number.parseInt(savedFormat, 10);
+            if (Number.isInteger(parsedFormat) && parsedFormat >= 0 && parsedFormat < DATE_FORMATS.length) {
+                currentDateFormatIndex = parsedFormat;
+            }
+        }
+        updateDateFormatUI();
+        const existingUser = localStorage.getItem('clockUsername');
+        if (existingUser) timeLabel.textContent = 'Hallo, ' + existingUser + '!';
+        startClock();
     </script>
 </body>
 </html>
